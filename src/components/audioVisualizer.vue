@@ -4,16 +4,9 @@
 // requestAnimationFrame引数の、コールバック関数には「通常」引数を渡せない
 
 export default {
-  props: ['audio', 'buffer'],
+  props: ['analyser'],
   data () {
     return {
-      reader: new FileReader,
-      ctx: new AudioContext,
-      volume: 0.3,
-      fftSize: 256,
-      smooth: 0.7,
-      analyser: null,
-      source: null,
       animationId: null,
       canvasCtx: null,
     }
@@ -22,6 +15,9 @@ export default {
     this.canvasCtx = this.$el.getContext('2d')
   },
   methods: {
+    play() {
+       this.animationId = requestAnimationFrame(this.render)
+    },
     render() {
       // 指定数分の配列を定義
       let data = new Uint8Array(this.analyser.frequencyBinCount)
@@ -32,31 +28,6 @@ export default {
       this.renderLineGraph(data)
 
       this.animationId = requestAnimationFrame(this.render)
-    },
-    readerOnload() {
-      this.ctx.decodeAudioData(this.reader.result, (buffer) => {
-        if (this.source) {
-          this.source.stop()
-          cancelAnimationFrame(this.animationId)
-        }
-        this.setup(buffer)
-        this.source.start(0)
-        this.animationId = requestAnimationFrame(this.render)
-      })
-    },
-    setup(buffer) {
-      this.source = this.ctx.createBufferSource()
-      this.source.buffer = buffer
-      this.analyser = this.ctx.createAnalyser()
-      this.gain = this.ctx.createGain()
-
-      this.analyser.fftSize = this.fftSize
-      this.analyser.smoothingTimeConstant = this.smooth
-      this.gain.gain.value = this.volume
-
-      this.source.connect(this.gain)
-      this.gain.connect(this.analyser)
-      this.analyser.connect(this.ctx.destination)
     },
     renderBar(data) {
       // 周波数領域の波形データ
@@ -79,13 +50,9 @@ export default {
     },
   },
   watch: {
-    audio(val) {
-      console.log(val)
-    },
-    buffer: {
+    analyser: {
       handler(val) {
-        this.reader.readAsArrayBuffer(val)
-        this.reader.onload = (this.readerOnload)
+        this.play();
       },
       deep: true
     },

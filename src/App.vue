@@ -1,36 +1,38 @@
 <template>
   <div id="app">
     <input type="file" @change="upload" ref="input">
-    <audio-visualizer :audio="this.$data.audio" :buffer="modBuffer"></audio-visualizer>
+    <audio-sound :ctx="this.ctx" :buffer="buffer"></audio-sound>
   </div>
 </template>
 
 <script>
-import audioVisualizer from '@/components/audioVisualizer.vue'
+import audioSound from '@/components/audioSound.vue'
 
 export default {
   name: 'app',
   data () {
     return {
-      audio: null,
-      readAsArrayBuffer: null,
+      reader: new FileReader,
+      ctx: null,
+      buffer: null
     }
   },
   methods: {
     upload(e) {
-      this.readAsArrayBuffer = e.target.files[0]
+      this.reader.readAsArrayBuffer(e.target.files[0])
+      this.reader.onload = this.readerOnload
     },
-  },
-  computed: {
-    modBuffer() {
-      return this.readAsArrayBuffer
+    readerOnload() {
+      // ブラウザ制約
+      this.ctx = new AudioContext;
+      this.ctx.decodeAudioData(this.reader.result, this.bufferOnload)
     },
-  },
-  watch: {
-
+    bufferOnload(buffer) {
+      this.buffer = buffer;
+    }
   },
   components: {
-    audioVisualizer
+    audioSound
   }
 }
 </script>
