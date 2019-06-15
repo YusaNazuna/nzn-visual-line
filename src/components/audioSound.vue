@@ -1,16 +1,20 @@
 <template>
-    <audio-visualizer :analyser="this.analyser"></audio-visualizer>
+  <div>
+    <visual-bar :analyser="this.analyser"></visual-bar>
+    <visual-line :analyser="this.analyser"></visual-line>
+  </div>
 </template>
 
 <script>
-import audioVisualizer from '@/components/audioVisualizer.vue'
+import visualBar from '@/components/visual/visualBar.vue'
+import visualLine from '@/components/visual/visualLine.vue'
 
 export default {
   props: ['ctx', 'buffer'],
   data () {
     return {
       volume: 0.3,
-      fftSize: 256,
+      fftSize: 512,
       smooth: 0.7,
       source: null,
       analyser: null
@@ -49,7 +53,8 @@ export default {
     },
   },
   components: {
-    audioVisualizer
+    visualBar
+    , visualLine
   }
 }
 </script>

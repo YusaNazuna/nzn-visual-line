@@ -1,18 +1,17 @@
 <script>
-// new ○○のオブジェクトはdeppでもwatchで認識してくれない
-// this.$setだとFileReaderのonloadが発火してくれない
-// requestAnimationFrame引数の、コールバック関数には「通常」引数を渡せない
-
 export default {
   props: ['analyser'],
   data () {
     return {
       animationId: null,
       canvasCtx: null,
+      width: window.innerWidth,
+      height: 125
     }
   },
   mounted() {
     this.canvasCtx = this.$el.getContext('2d')
+    window.addEventListener('resize', this.resize)
   },
   methods: {
     play() {
@@ -22,32 +21,20 @@ export default {
       // 指定数分の配列を定義
       let data = new Uint8Array(this.analyser.frequencyBinCount)
       this.canvasCtx.clearRect(0, 0, this.$el.width, this.$el.height)
-      this.canvasCtx.fillStyle = 'rgba(255, 255, 255, 1)';
-
       this.renderBar(data)
-      this.renderLineGraph(data)
-
       this.animationId = requestAnimationFrame(this.render)
     },
     renderBar(data) {
       // 周波数領域の波形データ
       this.analyser.getByteFrequencyData(data)
       for (let i=0, len=data.length; i<len; i++) {
-        this.canvasCtx.fillRect(i*7, this.$el.height, 5, (data[i]*-0.3))
+          this.canvasCtx.fillStyle = `hsl(${i}, 100%, 50%)`;
+          this.canvasCtx.fillRect(i*10, this.$el.height, 6, (data[i]*-0.6))
       }
     },
-    renderLineGraph(data) {
-      // 時間領域の波形データ
-      this.analyser.getByteTimeDomainData(data)
-      this.canvasCtx.beginPath()
-
-      for (let i=0, len=data.length; i<len; i++) {
-        let x = (i / len) * this.$el.width
-        var y = (1 - (data[i] / 255)) * this.$el.height;
-        (i === 0) ? this.canvasCtx.moveTo(x, y) : this.canvasCtx.lineTo(x, y)
-        this.canvasCtx.stroke()
-      }
-    },
+    resize() {
+      this.width = window.innerWidth
+    }
   },
   watch: {
     analyser: {
@@ -61,9 +48,15 @@ export default {
     return el(
       'canvas',
       {
+        attrs: {
+          width: this.width,
+          height: this.height,
+        },
         style: {
-          'width': '100%',
-          'height': '250px'
+          'position': 'absolute',
+          'left': '0',
+          'bottom': '0',
+          'zIndex': '1'
         }
       },
       this.$slots.default
