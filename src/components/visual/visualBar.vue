@@ -6,7 +6,7 @@ export default {
       animationId: null,
       canvasCtx: null,
       width: window.innerWidth,
-      height: 125
+      height: 200
     }
   },
   mounted() {
@@ -28,8 +28,8 @@ export default {
       // 周波数領域の波形データ
       this.analyser.getByteFrequencyData(data)
       for (let i=0, len=data.length; i<len; i++) {
-          this.canvasCtx.fillStyle = `hsl(${i}, 100%, 50%)`;
-          this.canvasCtx.fillRect(i*10, this.$el.height, 6, (data[i]*-0.6))
+          this.canvasCtx.fillStyle = `hsl(${i*3}, 100%, 50%)`;
+          this.canvasCtx.fillRect(i*18, this.$el.height, 12, (data[i]*-0.6))
       }
     },
     resize() {

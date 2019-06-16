@@ -1,7 +1,7 @@
 <template>
   <div>
     <visual-bar :analyser="this.analyser"></visual-bar>
-    <visual-line :analyser="this.analyser"></visual-line>
+    <visual-line :analyser="this.analyser" v-show="false"></visual-line>
   </div>
 </template>
 
